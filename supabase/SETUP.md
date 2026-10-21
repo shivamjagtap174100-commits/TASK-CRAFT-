@@ -1,6 +1,6 @@
 # TaskCraft Supabase setup
 
-The planner runs in local-only mode until Supabase is configured. Tasks, flashcards, and roadmaps created in that mode are stored in this browser and are not uploaded automatically.
+The current website interface does not include account sign-in, so these steps prepare the Supabase backend but do not enable sign-in or cloud sync from the website. Tasks, flashcards, and roadmaps are stored in this browser and are not uploaded automatically. An account interface must be added before users can authenticate through TaskCraft.
 
 ## 1. Create the database tables
 
@@ -32,7 +32,7 @@ The function verifies the caller's Supabase session before sending an AI request
 
 ## 4. Enable accounts
 
-In Supabase **Authentication → Providers**, enable Email. Choose whether to require email confirmation in **Authentication → URL Configuration** and the project's auth settings. Open `index.html` through a local web server or hosted HTTPS page, then sign up or sign in. Once signed in, the app loads and saves your account's cloud data.
+In Supabase **Authentication → Providers**, enable Email. Configure email confirmation and allowed URLs as needed. The current TaskCraft interface has no sign-up or sign-in controls; those must be restored before the website can authenticate users and load or save account data.
 
 When the app is hosted on GitHub Pages, set the Supabase **Site URL** to your Pages address and add that address to the allowed **Redirect URLs**. For local development, allow `http://localhost:8000`.
 
