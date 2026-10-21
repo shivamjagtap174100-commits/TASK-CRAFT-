@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d19">
+  <meta name="description" content="TaskCraft is a study and project planner with tasks, roadmaps, flashcards, and an AI assistant.">
+  <title>TaskCraft — Your study workspace</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{color-scheme:dark;--bg:#080d19;--panel:#101829;--panel2:#141f32;--line:#243149;--text:#edf2ff;--muted:#92a0b9;--purple:#8b7cff;--cyan:#62d5e8;--green:#4ed6a0;--red:#ff7c8c;--amber:#f5bd67}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#24204b 0,transparent 45%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer;color:inherit}button:disabled{opacity:.5;cursor:not-allowed}a{color:var(--cyan)}.app{display:grid;grid-template-columns:255px minmax(0,1fr);min-height:100vh}.sidebar{border-right:1px solid var(--line);padding:24px 16px;display:flex;flex-direction:column;gap:25px;background:#0b1220d9}.brand{display:flex;align-items:center;gap:11px;padding:0 10px}.brand-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#7167ff,#27bbd3);font-weight:900}.brand strong{font-size:17px;letter-spacing:.2px}.brand small{display:block;color:var(--muted);font-size:11px}.nav{display:grid;gap:6px}.nav button,.ghost,.secondary,.primary,.danger,.tab{border:1px solid transparent;border-radius:10px;background:transparent;text-align:left;padding:10px 12px;color:var(--muted);transition:.18s}.nav button:hover,.nav button.active,.ghost:hover,.secondary:hover,.tab:hover{background:var(--panel2);color:var(--text);border-color:var(--line)}.nav button.active{color:#c9c3ff;border-color:#48416e;background:#201e39}.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:#687792;padding:0 12px;margin:3px 0}.auth-box{margin-top:auto;border:1px solid var(--line);background:var(--panel);border-radius:15px;padding:14px}.auth-box h3{margin:0 0 4px;font-size:14px}.auth-box p{font-size:12px;color:var(--muted);margin:0 0 11px}.auth-box input{margin:5px 0}.auth-actions{display:flex;gap:7px;margin-top:8px}.auth-actions button{flex:1;text-align:center;padding:8px 5px;font-size:12px}.main{min-width:0;padding:25px clamp(16px,3vw,42px) 52px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:28px}.topbar h1{font-size:22px;margin:0}.topbar p{color:var(--muted);margin:3px 0 0;font-size:13px}.status{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:7px 11px;color:var(--muted);white-space:nowrap}.status.local{color:var(--amber);border-color:#614b31;background:#2b2117}.status.cloud{color:var(--green);border-color:#235640;background:#10241c}.view{display:none}.view.active{display:block}.welcome{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:25px 27px;margin-bottom:18px;border:1px solid #39365f;border-radius:20px;background:linear-gradient(110deg,#221d46,#152842 75%,#12303b);overflow:hidden}.welcome h2{font-size:25px;line-height:1.2;margin:0 0 8px}.welcome p{margin:0;color:#c1c7df;max-width:620px}.welcome .primary{white-space:nowrap}.grid{display:grid;gap:15px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.card{background:linear-gradient(155deg,#121c2d,#0e1726);border:1px solid var(--line);border-radius:16px;padding:18px}.stat-label{color:var(--muted);font-size:12px}.stat-value{font-size:27px;font-weight:750;margin-top:5px}.stat-note{font-size:11px;color:#71809c;margin-top:2px}.two-col{grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr)}.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.card-head h3,.section-title{margin:0;font-size:16px}.card-head a,.text-button{border:0;background:none;color:var(--cyan);font-size:12px;padding:0}.task-row{display:flex;align-items:center;gap:11px;padding:12px 0;border-top:1px solid #1d293d}.task-row:first-child{border-top:0}.check{width:19px;height:19px;accent-color:#897bff;flex:0 0 auto}.task-copy{min-width:0;flex:1}.task-copy strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}.task-copy small{color:var(--muted);font-size:11px}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;font-size:10px;background:#25213f;color:#c6beff;white-space:nowrap}.badge.high{background:#3a202a;color:#ff9baa}.badge.medium{background:#382d1e;color:#ffd18a}.badge.low{background:#173329;color:#88e7bd}.progress{height:8px;background:#202b40;border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:inherit;transition:width .3s}.empty{padding:24px 10px;color:var(--muted);text-align:center;font-size:13px}.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:14px 0}.field,select,textarea{border:1px solid var(--line);background:#0d1523;color:var(--text);border-radius:9px;padding:10px 11px;min-width:0}.field:focus,select:focus,textarea:focus{outline:2px solid #8275ff55;border-color:#8275ff}.toolbar .field{flex:1;min-width:150px}.primary,.secondary,.danger{padding:10px 14px;text-align:center;font-size:13px}.primary{background:linear-gradient(110deg,#7166eb,#6269db);border-color:#8175ff;color:white;font-weight:650}.primary:hover{filter:brightness(1.1)}.secondary{background:#18243a;border-color:var(--line);color:#d9e2f6}.danger{color:#ff9baa;border-color:#5c3039;background:#291920}.small-button{padding:6px 9px;font-size:11px}.task-list{display:grid}.task-list .task-row{padding:14px 4px}.task-list .task-copy strong.done{text-decoration:line-through;color:#76839a}.filters{display:flex;gap:7px;flex-wrap:wrap}.tab{padding:7px 10px;font-size:12px}.tab.active{background:#272349;color:#d6d0ff;border-color:#514a82}.roadmap-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0}.roadmap-canvas{overflow:auto;border:1px solid var(--line);border-radius:17px;background:#0c1422;padding:25px;min-height:235px}.flow{display:flex;align-items:stretch;gap:12px;min-width:max-content}.node-card{width:240px;background:#111c2d;border:1px solid #33435f;border-radius:14px;padding:15px;cursor:pointer;transition:.2s}.node-card:hover{transform:translateY(-3px);border-color:var(--purple)}.node-card h3{font-size:15px;margin:12px 0 6px}.node-card p{font-size:12px;color:var(--muted);margin:0}.connector{align-self:center;color:var(--purple);font-size:24px}.phase-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.phase-label{color:#c6beff;background:#282343;padding:3px 7px;border-radius:20px}.step-list{display:grid;gap:9px}.step-card{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#111c2d;border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer}.step-card:hover{border-color:var(--purple)}.phase-detail{margin-top:15px;border:1px solid var(--line);border-radius:15px;background:var(--panel);padding:18px}.phase-detail h3{margin:0 0 5px}.phase-detail p,.phase-detail li{color:#bac5d9;font-size:13px}.phase-detail ul{padding-left:20px}.flash-wrap{max-width:630px;margin:22px auto}.flashcard{min-height:250px;display:grid;place-items:center;text-align:center;padding:30px;border:1px solid #494274;border-radius:20px;background:radial-gradient(circle at 20% 0,#2c2855,#131d30 70%);cursor:pointer;perspective:1000px}.flashcard h3{font-size:22px;max-width:500px}.flashcard small{color:#9da8c2}.flash-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:14px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form-row .wide{grid-column:1/-1}.assistant{position:fixed;right:24px;bottom:22px;z-index:20}.chat-toggle{border:0;border-radius:50px;padding:13px 18px;background:linear-gradient(120deg,#786bff,#3dbfd0);font-weight:700;box-shadow:0 10px 35px #0008}.chat-panel{display:none;position:absolute;right:0;bottom:62px;width:min(390px,calc(100vw - 28px));height:min(560px,calc(100vh - 110px));border:1px solid #3b4662;border-radius:18px;background:#101827;box-shadow:0 20px 70px #000b;overflow:hidden;flex-direction:column}.chat-panel.open{display:flex}.chat-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.chat-messages{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}.message{max-width:88%;padding:10px 12px;border-radius:12px;font-size:13px;white-space:pre-wrap}.message.user{align-self:flex-end;background:#373064}.message.bot{align-self:flex-start;background:#1a2638;color:#dce5f5}.chat-form{display:flex;gap:7px;padding:10px;border-top:1px solid var(--line)}.chat-form input{flex:1}.quick-prompts{display:flex;gap:6px;overflow:auto;padding:8px 10px}.quick-prompts button{white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:#111c2d;padding:5px 8px;color:var(--muted);font-size:10px}.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,18px);opacity:0;pointer-events:none;z-index:50;background:#172438;border:1px solid #405474;border-radius:12px;padding:11px 16px;max-width:min(90vw,560px);transition:.2s;font-size:13px}.toast.show{opacity:1;transform:translate(-50%,0)}.toast.error{border-color:#8b3947;color:#ffc0c8}.hint{font-size:12px;color:var(--muted)}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:950px){.app{grid-template-columns:210px minmax(0,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}}
+    @media(max-width:650px){.app{display:block}.sidebar{padding:12px;position:sticky;top:0;z-index:10;border-right:0;border-bottom:1px solid var(--line)}.brand{padding:3px 4px}.nav-label,.auth-box{display:none}.nav{display:flex;overflow-x:auto;gap:4px}.nav button{white-space:nowrap;padding:8px 10px;font-size:12px}.main{padding:18px 13px 95px}.topbar{margin-bottom:18px;align-items:flex-start}.topbar h1{font-size:19px}.status{font-size:10px}.welcome{padding:19px;align-items:flex-start;flex-direction:column}.welcome h2{font-size:22px}.stats{gap:9px}.card{padding:14px}.stat-value{font-size:23px}.form-row{grid-template-columns:1fr}.form-row .wide{grid-column:auto}.assistant{right:14px;bottom:12px}.chat-toggle{padding:11px 15px}}
+    .status.error{color:var(--red);border-color:#723440;background:#281820}
+    .mobile-account-toggle{display:none}
+    .stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .message pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0a1120;border-radius:7px;padding:9px}
+    .message code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#b9e8f3}
+    .chat-status{font-size:10px;color:var(--muted);margin-top:2px}
+    .message.typing{color:var(--muted)}
+    .message.typing:after{content:" …";animation:pulse 1s infinite}
+    .phase-task{display:flex;align-items:center;gap:9px;margin:8px 0}
+    .phase-task label{display:flex;align-items:center;gap:8px}
+    .flash-inner{position:relative;width:100%;transition:transform .45s;transform-style:preserve-3d}
+    .flashcard.flipped .flash-inner{transform:rotateY(180deg)}
+    .flash-front,.flash-back{backface-visibility:hidden}
+    .flash-back{position:absolute;inset:0;display:grid;align-content:center;transform:rotateY(180deg)}
+    @keyframes pulse{50%{opacity:.35}}
+    @media(max-width:650px){.sidebar{background:var(--bg)}.mobile-account-toggle{display:block}.auth-box{display:none}.auth-box.open{display:block;width:100%;margin:0}}
+    @media(max-width:650px){.nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;gap:6px}.nav button{min-width:0;white-space:normal;text-align:center;padding:8px 5px;font-size:11px}}
+    @media(max-width:950px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">T</span><div><strong>TaskCraft</strong><small>Study smarter, build more</small></div></div>
+      <div>
+        <p class="nav-label">Workspace</p>
+        <nav class="nav" aria-label="Main navigation">
+          <button class="active" data-view="dashboard">⌂ &nbsp; Overview</button>
+          <button data-view="tasks">☷ &nbsp; My tasks</button>
+          <button data-view="roadmap">⑂ &nbsp; AI roadmap</button>
+          <button data-view="flashcards">▤ &nbsp; Flashcards</button>
+          <button class="mobile-account-toggle" id="mobileAccountToggle" aria-expanded="false">◎ &nbsp; Account</button>
+        </nav>
+      </div>
+      <section class="auth-box" aria-label="Supabase account">
+        <h3 id="authTitle">Connect your account</h3>
+        <p id="authDescription">Sign in to sync your workspace across devices.</p>
+        <label class="sr-only" for="authEmail">Email</label>
+        <input class="field" id="authEmail" type="email" placeholder="Email" autocomplete="email" style="width:100%">
+        <label class="sr-only" for="authPassword">Password</label>
+        <input class="field" id="authPassword" type="password" placeholder="Password" autocomplete="current-password" style="width:100%">
+        <div class="auth-actions" id="authActions">
+          <button class="secondary" id="signInButton">Sign in</button>
+          <button class="primary" id="signUpButton">Sign up</button>
+        </div>
+        <button class="secondary" id="signOutButton" hidden style="width:100%;margin-top:8px">Sign out</button>
+        <p id="authStatus" role="status" style="margin:9px 0 0"></p>
+      </section>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div><h1 id="pageTitle">Your workspace</h1><p id="pageSubtitle">A little progress every day adds up.</p></div>
+        <span id="connectionStatus" class="status local">Local-only · not synced</span>
+      </header>
+
+      <section class="view active" id="dashboardView">
+        <div class="welcome">
+          <div><h2>Make room for focused progress.</h2><p>Plan projects, turn learning goals into clear milestones, and keep your next step visible.</p></div>
+          <button class="primary" data-go="tasks">＋ Add a task</button>
+        </div>
+        <div class="grid stats">
+          <article class="card"><div class="stat-label">Open tasks</div><div class="stat-value" id="openCount">0</div><div class="stat-note">Ready for your focus</div></article>
+          <article class="card"><div class="stat-label">Completed</div><div class="stat-value" id="completedCount">0</div><div class="stat-note">Tasks checked off</div></article>
+          <article class="card"><div class="stat-label">Completion rate</div><div class="stat-value" id="progressStat">0%</div><div class="stat-note">Progress across all tasks</div></article>
+          <article class="card"><div class="stat-label">Flashcards</div><div class="stat-value" id="flashcardCount">0</div><div class="stat-note">Ideas to remember</div></article>
+          <article class="card"><div class="stat-label">Study streak</div><div class="stat-value" id="streakCount">0</div><div class="stat-note">Consecutive active days</div></article>
+          <article class="card"><div class="stat-label">Completed this week</div><div class="stat-value" id="weeklyCount">0</div><div class="stat-note">Completions in the last 7 days</div></article>
+        </div>
+        <div class="grid two-col">
+          <article class="card"><div class="card-head"><h3>Upcoming tasks</h3><button class="text-button" data-go="tasks">View all →</button></div><div id="upcomingList"></div></article>
+          <article class="card"><div class="card-head"><h3>Workspace progress</h3><span class="badge" id="progressLabel">0%</span></div><p class="hint">Completed tasks</p><div class="progress"><span id="progressBar" style="width:0%"></span></div><div class="card-head" style="margin:20px 0 10px"><h3>Quick start</h3></div><div class="grid"><button class="secondary" data-go="roadmap">Create a learning roadmap</button><button class="secondary" data-go="flashcards">Review or add flashcards</button></div></article>
+        </div>
+      </section>
+
+      <section class="view" id="tasksView">
+        <div class="card">
+          <div class="card-head"><div><h2 class="section-title">My tasks</h2><p class="hint">Capture the next action and keep moving.</p></div></div>
+          <form id="taskForm" class="form-row">
+            <label class="wide"><span class="sr-only">Task name</span><input class="field" id="taskTitle" maxlength="160" required placeholder="What do you need to do?" style="width:100%"></label>
+            <label><span class="sr-only">Category</span><select id="taskCategory" style="width:100%"><option>Study</option><option>Project</option><option>Personal</option></select></label>
+            <label><span class="sr-only">Priority</span><select id="taskPriority" style="width:100%"><option value="medium">Medium priority</option><option value="high">High priority</option><option value="low">Low priority</option></select></label>
+            <label><span class="sr-only">Due date</span><input class="field" id="taskDue" type="date" style="width:100%"></label>
+            <button class="primary" type="submit">Add task</button>
+          </form>
+          <div class="toolbar"><input class="field" id="taskSearch" placeholder="Search tasks…" aria-label="Search tasks"><label class="sr-only" for="taskCategoryFilter">Filter by category</label><select id="taskCategoryFilter" aria-label="Filter by category"><option value="all">All categories</option><option>Study</option><option>Project</option><option>Personal</option></select><div class="filters" id="taskFilters"><button class="tab active" data-filter="all">All</button><button class="tab" data-filter="open">Open</button><button class="tab" data-filter="completed">Completed</button><button class="tab" data-filter="high">High priority</button></div></div>
+          <div id="taskList" class="task-list"></div>
+        </div>
+      </section>
+
+      <section class="view" id="roadmapView">
+        <div class="card">
+          <div class="card-head"><div><h2 class="section-title">AI learning roadmap</h2><p class="hint">Generate a guided plan, inspect each phase, then turn tasks into action.</p></div></div>
+          <form id="roadmapForm" class="toolbar"><input class="field" id="roadmapTopic" maxlength="180" required placeholder="What do you want to learn or build?"><button class="primary" type="submit" id="generateRoadmap">Generate with AI</button><button class="secondary" type="button" id="sampleRoadmap">Load sample</button></form>
+          <p class="hint" id="roadmapHint">AI generation needs a signed-in Supabase account and the deployed assistant function. Sample roadmaps work without setup.</p>
+          <div class="roadmap-toolbar"><div class="filters"><button class="tab active" id="flowTab">Flowchart</button><button class="tab" id="stepTab">Step-by-step</button></div><label class="hint">Saved roadmaps <select id="savedRoadmaps"><option value="">Choose a roadmap</option></select></label></div>
+          <div id="roadmapCanvas" class="roadmap-canvas"></div>
+          <div id="roadmapDetail"></div>
+        </div>
+      </section>
+
+      <section class="view" id="flashcardsView">
+        <div class="card">
+          <div class="card-head"><div><h2 class="section-title">Active recall</h2><p class="hint">Create cards yourself or ask the AI to draft a deck from a topic.</p></div></div>
+          <form id="flashcardForm" class="form-row">
+            <label><span class="sr-only">Question</span><input class="field" id="cardQuestion" maxlength="500" required placeholder="Question or prompt" style="width:100%"></label>
+            <label><span class="sr-only">Answer</span><input class="field" id="cardAnswer" maxlength="1000" required placeholder="Answer" style="width:100%"></label>
+            <button class="primary wide" type="submit">Add flashcard</button>
+          </form>
+          <form id="aiCardsForm" class="toolbar"><input class="field" id="flashcardTopic" maxlength="180" required placeholder="Topic for an AI flashcard deck"><button class="secondary" id="generateCards" type="submit">Generate cards with AI</button></form>
+          <div class="flash-wrap">
+            <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="Flip flashcard"><div class="flash-inner"><div class="flash-front"><small>QUESTION · CLICK TO FLIP</small><h3 id="cardQuestionFace">Add a flashcard to get started</h3></div><div class="flash-back"><small>ANSWER</small><h3 id="cardAnswerFace"></h3></div></div></div>
+            <div class="flash-actions"><button class="secondary" id="previousCard">← Previous</button><span class="hint" id="cardPosition" style="align-self:center">0 / 0</span><button class="secondary" id="nextCard">Next →</button><button class="danger small-button" id="deleteCard" hidden>Delete</button></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="assistant">
+    <section class="chat-panel" id="chatPanel" aria-label="TaskCraft AI assistant">
+      <header class="chat-head"><div><strong>TaskCraft Assistant</strong><div class="chat-status" id="chatStatus">Offline helper · browser only</div></div><div><button class="ghost small-button" id="resetChat" aria-label="Reset chat">↻</button><button class="ghost small-button" id="closeChat" aria-label="Close chat">✕</button></div></header>
+      <div class="quick-prompts"><button data-prompt="How should I use TaskCraft?">How to use?</button><button data-prompt="What features are in this planner?">Features</button><button data-prompt="How does the AI roadmap work?">AI roadmap</button><button data-prompt="How do I sync and store my data?">Sync & storage</button><button data-prompt="Give me a practical study tip.">Study tips</button></div>
+      <div class="chat-messages" id="chatMessages"><div class="message bot">Hi! I can help you plan a study session, break down a goal, or explain the workspace. Ask me anything.</div></div>
+      <form class="chat-form" id="chatForm"><input class="field" id="chatInput" maxlength="1000" required placeholder="Ask a question…" aria-label="Message"><button class="primary" type="submit">Send</button></form>
+    </section>
+    <button class="chat-toggle" id="chatToggle">✦ Ask TaskCraft</button>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module">
+    const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY";
+    const STORAGE_PREFIX = "taskcraft-v1";
+    const isConfigured = /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(SUPABASE_URL) && !SUPABASE_URL.includes("YOUR_PROJECT") && SUPABASE_ANON_KEY.length > 30 && !SUPABASE_ANON_KEY.includes("YOUR_SUPABASE");
+    const state = { client: null, user: null, cloudReady: false, tasks: [], flashcards: [], roadmaps: [], activeRoadmap: null, selectedPhase: null, roadmapMode: "flow", taskFilter: "all", taskCategoryFilter: "all", cardIndex: 0, showingAnswer: false };
+    const $ = (selector) => document.querySelector(selector);
+    const escapeHtml = (value = "") => String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+    let toastTimer;
+
+    function notify(message, isError = false) {
+      const toast = $("#toast");
+      toast.textContent = message;
+      toast.classList.toggle("error", isError);
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 3600);
+    }
+
+    function storageKey() { return `${STORAGE_PREFIX}:${state.user?.id || "local"}`; }
+    function saveLocal() {
+      if (state.user) return;
+      localStorage.setItem(storageKey(), JSON.stringify({ tasks: state.tasks, flashcards: state.flashcards, roadmaps: state.roadmaps }));
+    }
+    function loadLocal() {
+      try {
+        const value = JSON.parse(localStorage.getItem(storageKey()) || "{}");
+        state.tasks = Array.isArray(value.tasks) ? value.tasks : [];
+        state.flashcards = Array.isArray(value.flashcards) ? value.flashcards : [];
+        state.roadmaps = Array.isArray(value.roadmaps) ? value.roadmaps : [];
+        state.activeRoadmap = state.roadmaps[0] || null;
+      } catch (error) {
+        console.error("Could not read TaskCraft local data.", error);
+        notify("Saved local data could not be read. Your browser storage may be damaged.", true);
+        state.tasks = []; state.flashcards = []; state.roadmaps = [];
+        state.activeRoadmap = null;
+      }
+    }
+    function setCloudStatus() {
+      const badge = $("#connectionStatus");
+      if (state.user && state.cloudReady) {
+        badge.textContent = `Synced · ${state.user.email || "account"}`;
+        badge.className = "status cloud";
+      } else if (state.user) {
+        badge.textContent = "Signed in · sync unavailable";
+        badge.className = "status error";
+      } else {
+        badge.textContent = "Local-only · not synced";
+        badge.className = "status local";
+      }
+      $("#authTitle").textContent = state.user ? "Signed in" : "Connect your account";
+      $("#authDescription").textContent = state.user ? (state.user.email || "Supabase account connected") : "Sign in to sync your workspace across devices.";
+      $("#chatStatus").textContent = state.cloudReady ? "Supabase account connected" : state.user ? "Signed in · cloud data unavailable" : "Offline helper · browser only";
+      $("#authActions").hidden = Boolean(state.user) || !state.client;
+      $("#signOutButton").hidden = !state.user;
+      if (!state.client) $("#authStatus").textContent = "Add your Supabase URL and publishable key in the HTML to enable sync.";
+      else if (!state.user) $("#authStatus").textContent = "Not signed in. Data stays in this browser.";
+      else if (state.cloudReady) $("#authStatus").textContent = "Your data is stored in your Supabase account.";
+      else $("#authStatus").textContent = "Signed in, but workspace data has not synced yet.";
+    }
+
+    function normalizeTask(row) {
+      return { id: row.id, title: row.title, category: row.category, priority: row.priority, due_date: row.due_date || "", completed: Boolean(row.completed), completed_at: row.completed_at || null, created_at: row.created_at || new Date().toISOString() };
+    }
+    async function loadCloudData() {
+      const [tasks, cards, roads] = await Promise.all([
+        state.client.from("tasks").select("id,title,category,priority,due_date,completed,completed_at,created_at").order("created_at", { ascending: false }),
+        state.client.from("flashcards").select("id,question,answer,created_at").order("created_at", { ascending: true }),
+        state.client.from("roadmaps").select("id,title,topic,data,created_at").order("created_at", { ascending: false })
+      ]);
+      for (const result of [tasks, cards, roads]) if (result.error) throw result.error;
+      state.tasks = (tasks.data || []).map(normalizeTask);
+      state.flashcards = cards.data || [];
+      state.roadmaps = roads.data || [];
+      state.activeRoadmap = state.roadmaps[0] || null;
+      state.cloudReady = true;
+      renderAll();
+    }
+    function switchView(name) {
+      document.querySelectorAll(".view").forEach(el => el.classList.toggle("active", el.id === `${name}View`));
+      document.querySelectorAll(".nav [data-view]").forEach(el => el.classList.toggle("active", el.dataset.view === name));
+      const labels = { dashboard: ["Your workspace", "A little progress every day adds up."], tasks: ["My tasks", "Keep the next action clear and achievable."], roadmap: ["AI roadmap", "Turn a learning goal into a practical path."], flashcards: ["Flashcards", "Build knowledge through active recall."] };
+      $("#pageTitle").textContent = labels[name][0];
+      $("#pageSubtitle").textContent = labels[name][1];
+      if (name === "tasks") renderTasks();
+      if (name === "roadmap") renderRoadmap();
+      if (name === "flashcards") renderFlashcard();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function renderStats() {
+      const complete = state.tasks.filter(task => task.completed).length;
+      const open = state.tasks.length - complete;
+      const percent = state.tasks.length ? Math.round(complete / state.tasks.length * 100) : 0;
+      const dayKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      const activity = new Set(state.tasks.filter(task => task.completed_at).map(task => dayKey(new Date(task.completed_at))).filter(day => day !== "NaN-NaN-NaN"));
+      const today = new Date();
+      const streakDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      if (!activity.has(dayKey(streakDate))) streakDate.setDate(streakDate.getDate() - 1);
+      let streak = 0;
+      while (activity.has(dayKey(streakDate))) {
+        streak++;
+        streakDate.setDate(streakDate.getDate() - 1);
+      }
+      const weekStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6).getTime();
+      const weekly = state.tasks.filter(task => task.completed_at && new Date(task.completed_at).getTime() >= weekStart && new Date(task.completed_at).getTime() <= today.getTime()).length;
+      $("#openCount").textContent = open;
+      $("#completedCount").textContent = complete;
+      $("#flashcardCount").textContent = state.flashcards.length;
+      $("#progressStat").textContent = `${percent}%`;
+      $("#streakCount").textContent = streak;
+      $("#weeklyCount").textContent = weekly;
+      $("#progressLabel").textContent = `${percent}%`;
+      $("#progressBar").style.width = `${percent}%`;
+      const list = [...state.tasks].filter(task => !task.completed).sort((a, b) => (a.due_date || "9999").localeCompare(b.due_date || "9999")).slice(0, 5);
+      $("#upcomingList").innerHTML = list.length ? list.map(taskRow).join("") : '<div class="empty">No open tasks yet. Add one to get started.</div>';
+    }
+    function taskRow(task, detailed = false) {
+      const date = task.due_date ? new Date(`${task.due_date}T00:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "No due date";
+      return `<div class="task-row"><input class="check" type="checkbox" data-complete="${escapeHtml(task.id)}" ${task.completed ? "checked" : ""} aria-label="${task.completed ? "Mark incomplete" : "Mark complete"}: ${escapeHtml(task.title)}"><div class="task-copy"><strong class="${task.completed ? "done" : ""}">${escapeHtml(task.title)}</strong><small>${escapeHtml(task.category)} · ${escapeHtml(date)}${detailed ? ` · <span class="badge ${escapeHtml(task.priority)}">${escapeHtml(task.priority)} priority</span>` : ""}</small></div>${detailed ? `<button class="danger small-button" data-delete-task="${escapeHtml(task.id)}" aria-label="Delete ${escapeHtml(task.title)}">Delete</button>` : ""}</div>`;
+    }
+    function renderTasks() {
+      const query = $("#taskSearch").value.trim().toLowerCase();
+      let tasks = [...state.tasks].filter(task => task.title.toLowerCase().includes(query));
+      if (state.taskCategoryFilter !== "all") tasks = tasks.filter(task => task.category === state.taskCategoryFilter);
+      if (state.taskFilter === "open") tasks = tasks.filter(task => !task.completed);
+      if (state.taskFilter === "completed") tasks = tasks.filter(task => task.completed);
+      if (state.taskFilter === "high") tasks = tasks.filter(task => task.priority === "high" && !task.completed);
+      tasks.sort((a, b) => Number(a.completed) - Number(b.completed) || (a.due_date || "9999").localeCompare(b.due_date || "9999"));
+      $("#taskList").innerHTML = tasks.length ? tasks.map(task => taskRow(task, true)).join("") : '<div class="empty">No tasks match this view. Add a task above.</div>';
+      renderStats();
+    }
+    function renderSavedRoadmaps() {
+      const select = $("#savedRoadmaps");
+      const selected = state.activeRoadmap?.id || "";
+      select.innerHTML = '<option value="">Choose a roadmap</option>' + state.roadmaps.map(roadmap => `<option value="${escapeHtml(roadmap.id)}" ${roadmap.id === selected ? "selected" : ""}>${escapeHtml(roadmap.title)}</option>`).join("");
+    }
+    function renderRoadmap() {
+      renderSavedRoadmaps();
+      const roadmap = state.activeRoadmap;
+      const canvas = $("#roadmapCanvas");
+      if (!roadmap?.data?.phases?.length) {
+        canvas.innerHTML = '<div class="empty">No roadmap yet. Generate one with AI or load the sample roadmap.</div>';
+        state.selectedPhase = null;
+        $("#roadmapDetail").innerHTML = "";
+        renderStats();
+        return;
+      }
+      const phases = roadmap.data.phases;
+      if (state.roadmapMode === "flow") {
+        canvas.innerHTML = `<div class="flow">${phases.map((phase, index) => `${index ? '<span class="connector">→</span>' : ""}<article class="node-card" data-phase="${index}" tabindex="0" role="button" aria-label="View ${escapeHtml(phase.title)} details"><div class="phase-meta"><span class="phase-label">Phase ${escapeHtml(phase.phase || index + 1)}</span><span>${escapeHtml(phase.duration || "")}</span></div><h3>${escapeHtml(phase.title)}</h3><p>${escapeHtml(phase.objective || "")}</p><p style="margin-top:10px">${(phase.tasks || []).length} action items</p></article>`).join("")}</div>`;
+      } else {
+        canvas.innerHTML = `<div class="step-list">${phases.map((phase, index) => `<article class="step-card" data-phase="${index}" tabindex="0" role="button"><span><b>Phase ${escapeHtml(phase.phase || index + 1)} · ${escapeHtml(phase.title)}</b><br><small class="hint">${escapeHtml(phase.duration || "")} · ${(phase.tasks || []).length} action items</small></span><span>›</span></article>`).join("")}</div>`;
+      }
+      if (state.selectedPhase !== null && phases[state.selectedPhase]) showPhase(state.selectedPhase);
+      else $("#roadmapDetail").innerHTML = "";
+      renderStats();
+    }
+    function normalizeRoadmapTask(task) {
+      if (typeof task === "string") return { title: task, priority: "medium", dueDate: "", duration: "" };
+      const dueDate = typeof task.due_date === "string" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(task.due_date) &&
+        !Number.isNaN(Date.parse(`${task.due_date}T00:00:00Z`)) &&
+        new Date(`${task.due_date}T00:00:00Z`).toISOString().slice(0, 10) === task.due_date
+        ? task.due_date
+        : "";
+      return {
+        title: task.title,
+        priority: ["low", "medium", "high"].includes(task.priority) ? task.priority : "medium",
+        dueDate,
+        duration: typeof task.duration === "string" ? task.duration : ""
+      };
+    }
+    function showPhase(index) {
+      const phase = state.activeRoadmap?.data?.phases?.[index];
+      if (!phase) return;
+      state.selectedPhase = index;
+      const tasks = (phase.tasks || []).map(normalizeRoadmapTask);
+      const taskMarkup = tasks.map(item => {
+        const existing = state.tasks.find(task => task.title === item.title);
+        const metadata = item.priority !== "medium" ? ` · ${escapeHtml(item.priority)} priority` : "";
+        const duration = item.duration ? ` · ${escapeHtml(item.duration)}` : "";
+        const due = item.dueDate ? ` · Due ${escapeHtml(item.dueDate)}` : "";
+        const title = escapeHtml(item.title);
+        const control = existing
+          ? `<label><input class="check" type="checkbox" data-complete="${escapeHtml(existing.id)}" ${existing.completed ? "checked" : ""}><span>${title}${metadata}${duration}${due}</span></label>`
+          : `<span>${title}${metadata}${duration}${due}</span><button class="secondary small-button" data-add-phase-task="${title}" data-priority="${escapeHtml(item.priority)}" data-due-date="${escapeHtml(item.dueDate)}">＋ Add</button>`;
+        return `<li class="phase-task">${control}</li>`;
+      }).join("");
+      $("#roadmapDetail").innerHTML = `
+        <article class="phase-detail">
+          <div class="card-head">
+            <div>
+              <span class="phase-label">Phase ${escapeHtml(phase.phase || index + 1)} · ${escapeHtml(phase.badge || "Milestone")}</span>
+              ${phase.difficulty ? `<span class="badge">${escapeHtml(phase.difficulty)}</span>` : ""}
+              <h3 style="margin-top:10px">${escapeHtml(phase.title)}</h3>
+            </div>
+            <button class="primary small-button" data-import-phase="${index}">＋ Add phase tasks</button>
+          </div>
+          <p>${escapeHtml(phase.objective || "")}</p>
+          ${phase.prerequisites?.length ? `<h4>Prerequisites</h4><ul>${phase.prerequisites.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
+          ${phase.strategy ? `<h4>Recommended strategy</h4><p>${escapeHtml(phase.strategy)}</p>` : ""}
+          <h4>Action items</h4><ul>${taskMarkup}</ul>
+          ${phase.tools?.length ? `<p><b>Tools & resources:</b> ${phase.tools.map(escapeHtml).join(" · ")}</p>` : ""}
+        </article>`;
+    }
+    function renderFlashcard() {
+      const card = state.flashcards[state.cardIndex];
+      if (!card) {
+        $("#cardQuestionFace").textContent = "Add a flashcard to get started";
+        $("#cardAnswerFace").textContent = "";
+        $("#flashcard").classList.remove("flipped");
+        $("#cardPosition").textContent = "0 / 0";
+        $("#deleteCard").hidden = true;
+        return;
+      }
+      $("#cardQuestionFace").textContent = card.question;
+      $("#cardAnswerFace").textContent = card.answer;
+      $("#flashcard").classList.toggle("flipped", state.showingAnswer);
+      $("#flashcard").setAttribute("aria-label", state.showingAnswer ? "Flashcard answer. Click to flip back" : "Flashcard question. Click to flip");
+      $("#cardPosition").textContent = `${state.cardIndex + 1} / ${state.flashcards.length}`;
+      $("#deleteCard").hidden = false;
+    }
+    function renderAll() {
+      renderStats();
+      renderTasks();
+      renderRoadmap();
+      renderFlashcard();
+    }
+    function sampleRoadmap(topic) {
+      return { title: `${topic}: learning roadmap`, topic, phases: [
+        { phase: 1, badge: "Foundation", difficulty: "Beginner", title: "Set your foundations", duration: "Week 1–2", objective: `Learn the core ideas and tools behind ${topic}.`, prerequisites: [], strategy: "Build a small vocabulary of the key ideas, then practise each one immediately with an example.", tasks: ["Identify the essential concepts", "Set up your learning environment", "Complete a small guided exercise"], tools: ["Documentation", "Notes"] },
+        { phase: 2, badge: "Practice", difficulty: "Beginner", title: "Build practical skills", duration: "Week 3–4", objective: "Turn foundational knowledge into repeatable practice.", prerequisites: ["Complete the foundation phase"], strategy: "Use short, progressively harder exercises and review your mistakes before moving on.", tasks: ["Practice with focused exercises", "Review mistakes and record insights", "Build a small project"], tools: ["Practice exercises", "Version control"] },
+        { phase: 3, badge: "Project", difficulty: "Intermediate", title: "Create a complete project", duration: "Week 5–6", objective: "Use the skills you learned to solve a real problem.", prerequisites: ["Basic familiarity with the tools"], strategy: "Keep the scope small, ship a working first version, and improve it using feedback.", tasks: ["Define a small project scope", "Build and test the main features", "Ask for feedback and refine"], tools: ["Project board", "Testing tools"] },
+        { phase: 4, badge: "Next steps", difficulty: "Intermediate", title: "Review and grow", duration: "Week 7–8", objective: "Reflect on progress and create a sustainable next learning step.", prerequisites: ["Complete a practical project"], strategy: "Review what you can explain and build from memory, then choose the next knowledge gap to address.", tasks: ["Document what you learned", "Share or present your work", "Choose an advanced topic to explore"], tools: ["Portfolio", "Learning journal"] }
+      ] };
+    }
+    function offlineFlashcards(topic) {
+      return [
+        { question: `What is ${topic}?`, answer: `Explain ${topic} in your own words, including its main purpose.` },
+        { question: `Why is ${topic} useful?`, answer: `Describe a practical problem that ${topic} helps solve.` },
+        { question: `What are the core concepts in ${topic}?`, answer: `Name the key concepts and explain how they relate to one another.` },
+        { question: `How would you apply ${topic} in a small project?`, answer: `Choose one focused use case, build the simplest solution, and test it.` },
+        { question: `What is a common beginner mistake with ${topic}?`, answer: `Look for a common misconception and explain how you would avoid it.` },
+        { question: `How can you check your understanding of ${topic}?`, answer: `Try explaining the idea from memory, then test it with a practical example.` },
+        { question: `What should you learn before going deeper into ${topic}?`, answer: `Identify the prerequisites that make its more advanced ideas easier to understand.` },
+        { question: `What is a good next step after learning ${topic}?`, answer: `Apply it in a small project, review the result, and choose one area to improve.` }
+      ];
+    }
+    function offlineAssistant(prompt, context) {
+      const question = prompt.toLowerCase();
+      if (/\b(sync|storage|supabase|save)\b/.test(question)) {
+        return "Your current workspace is saved in this browser only. To sync it across devices, configure your Supabase URL and publishable key, run the included database schema, then sign in. Existing browser-only items are not uploaded automatically.";
+      }
+      if (/\b(how|use|feature|website|taskcraft)\b/.test(question)) {
+        return "Use Overview to track your tasks, progress, and study streak; My tasks to manage and filter work; AI roadmap to build a sample learning plan; and Flashcards for active recall. Open a roadmap phase to see the strategy, prerequisites, and tasks. Sign in with Supabase to sync across devices.";
+      }
+      if (/\b(study|tip|focus|remember|learn)\b/.test(question)) {
+        return "Try one focused 25-minute session: choose a single next action, silence distractions, and finish by recalling the key idea without looking at your notes. Add the next action as a task and turn important concepts into flashcards.";
+      }
+      if (/\b(goal|break|plan|roadmap|project)\b/.test(question)) {
+        return "Break a goal into four steps: learn the foundations, practise with small exercises, build one focused project, then review and improve it. Keep each task small enough to finish in one sitting. The Roadmap tab can save this outline as a sample plan.";
+      }
+      if (/\b(progress|workspace|task|card|roadmap)\b/.test(question)) {
+        return `Your workspace currently has ${context.openTasks} open tasks, ${context.completedTasks} completed tasks, ${context.flashcards} flashcards${context.roadmap ? `, and the "${context.roadmap}" roadmap` : ""}. Choose one open task as your next action.`;
+      }
+      return "I am the offline TaskCraft helper, so my answers are limited to built-in study and planner guidance. For topic-specific AI help, set up Supabase and deploy the included AI assistant function.";
+    }
+    function formatBotText(text) {
+      const codeBlocks = [];
+      let safe = escapeHtml(text).replace(/```([\s\S]*?)```/g, (_, code) => `\u0000${codeBlocks.push(`<pre><code>${code.trim()}</code></pre>`) - 1}\u0000`);
+      safe = safe.replace(/`([^`\n]+)`/g, "<code>$1</code>").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+      const lines = safe.split("\n");
+      let html = "";
+      let inList = false;
+      for (const line of lines) {
+        const item = line.match(/^\s*[-*]\s+(.+)$/);
+        if (item) {
+          if (!inList) { html += "<ul>"; inList = true; }
+          html += `<li>${item[1]}</li>`;
+        } else {
+          if (inList) { html += "</ul>"; inList = false; }
+          if (line) html += `<p>${line}</p>`;
+        }
+      }
+      if (inList) html += "</ul>";
+      return html.replace(/\u0000(\d+)\u0000/g, (_, index) => codeBlocks[Number(index)]);
+    }
+    async function saveRoadmap(data) {
+      const roadmap = { title: data.title, topic: data.topic, data };
+      state.selectedPhase = null;
+      if (state.user) {
+        const { data: saved, error } = await state.client.from("roadmaps").insert({ ...roadmap, user_id: state.user.id }).select("id,title,topic,data,created_at").single();
+        if (error) throw error;
+        state.roadmaps.unshift(saved);
+        state.activeRoadmap = saved;
+      } else {
+        const saved = { ...roadmap, id: crypto.randomUUID(), created_at: new Date().toISOString() };
+        state.roadmaps.unshift(saved);
+        state.activeRoadmap = saved;
+        saveLocal();
+      }
+      renderRoadmap();
+    }
+    async function addTask(title, category = "Study", priority = "medium", dueDate = "") {
+      const task = { title, category, priority, due_date: dueDate || null, completed: false, completed_at: null };
+      if (state.user) {
+        const { data, error } = await state.client.from("tasks").insert({ ...task, user_id: state.user.id }).select("id,title,category,priority,due_date,completed,completed_at,created_at").single();
+        if (error) throw error;
+        state.tasks.unshift(normalizeTask(data));
+      } else {
+        state.tasks.unshift({ ...task, id: crypto.randomUUID(), created_at: new Date().toISOString() });
+        saveLocal();
+      }
+      renderAll();
+    }
+    async function toggleTask(id, completed) {
+      const current = state.tasks.find(task => task.id === id);
+      if (!current) return;
+      const patch = { completed, completed_at: completed ? new Date().toISOString() : null };
+      if (state.user) {
+        const { data, error } = await state.client.from("tasks").update(patch).eq("id", id).select("id,title,category,priority,due_date,completed,completed_at,created_at").single();
+        if (error) throw error;
+        state.tasks = state.tasks.map(task => task.id === id ? normalizeTask(data) : task);
+      } else {
+        state.tasks = state.tasks.map(task => task.id === id ? { ...task, ...patch } : task);
+        saveLocal();
+      }
+      renderAll();
+    }
+    async function deleteTask(id) {
+      if (state.user) {
+        const { error } = await state.client.from("tasks").delete().eq("id", id);
+        if (error) throw error;
+      }
+      state.tasks = state.tasks.filter(task => task.id !== id);
+      saveLocal();
+      renderAll();
+    }
+    async function addFlashcard(question, answer) {
+      const card = { question, answer };
+      if (state.user) {
+        const { data, error } = await state.client.from("flashcards").insert({ ...card, user_id: state.user.id }).select("id,question,answer,created_at").single();
+        if (error) throw error;
+        state.flashcards.push(data);
+      } else {
+        state.flashcards.push({ ...card, id: crypto.randomUUID(), created_at: new Date().toISOString() });
+        saveLocal();
+      }
+      state.cardIndex = state.flashcards.length - 1;
+      state.showingAnswer = false;
+      renderAll();
+    }
+    async function deleteFlashcard() {
+      const card = state.flashcards[state.cardIndex];
+      if (!card) return;
+      if (state.user) {
+        const { error } = await state.client.from("flashcards").delete().eq("id", card.id);
+        if (error) throw error;
+      }
+      state.flashcards.splice(state.cardIndex, 1);
+      state.cardIndex = Math.min(state.cardIndex, Math.max(0, state.flashcards.length - 1));
+      state.showingAnswer = false;
+      saveLocal();
+      renderAll();
+    }
+    async function callAssistant(mode, prompt, context = {}) {
+      if (!state.client || !state.user) throw new Error("AI features need Supabase setup and a signed-in account. Configure Supabase and deploy the assistant Edge Function.");
+      const { data, error } = await state.client.functions.invoke("ai-assistant", { body: { mode, prompt, context } });
+      if (error) throw new Error(error.message || "The AI assistant request failed.");
+      if (!data || typeof data.text !== "string") throw new Error("The AI function returned an invalid response.");
+      return data.text;
+    }
+    function isNetworkFailure(error) {
+      return error?.name === "FunctionsFetchError" || /network|fetch failed|failed to send|connection (?:lost|refused|failed|timed out)/i.test(error?.message || "");
+    }
+    function parseJsonResponse(text, label) {
+      try { return JSON.parse(text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "")); }
+      catch { throw new Error(`The AI returned an invalid ${label}. Please try again.`); }
+    }
+
+    document.querySelectorAll(".nav [data-view], [data-go], [data-view]").forEach(button => {
+      button.addEventListener("click", () => switchView(button.dataset.view || button.dataset.go));
+    });
+    $("#mobileAccountToggle").addEventListener("click", event => {
+      const panel = document.querySelector(".auth-box");
+      const isOpen = panel.classList.toggle("open");
+      event.currentTarget.setAttribute("aria-expanded", String(isOpen));
+    });
+    $("#taskForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const button = event.submitter;
+      button.disabled = true;
+      try {
+        await addTask($("#taskTitle").value.trim(), $("#taskCategory").value, $("#taskPriority").value, $("#taskDue").value);
+        $("#taskForm").reset();
+        notify(state.user ? "Task added and synced." : "Task saved in this browser only.");
+      } catch (error) { console.error("Could not add task.", error); notify(`Could not add task: ${error.message}`, true); }
+      finally { button.disabled = false; }
+    });
+    $("#taskSearch").addEventListener("input", renderTasks);
+    $("#taskCategoryFilter").addEventListener("change", event => {
+      state.taskCategoryFilter = event.target.value;
+      renderTasks();
+    });
+    $("#taskFilters").addEventListener("click", event => {
+      const button = event.target.closest("[data-filter]");
+      if (!button) return;
+      state.taskFilter = button.dataset.filter;
+      $("#taskFilters").querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab === button));
+      renderTasks();
+    });
+    document.addEventListener("change", event => {
+      if (event.target.matches("[data-complete]")) toggleTask(event.target.dataset.complete, event.target.checked).catch(error => { console.error("Could not update task.", error); notify(`Could not update task: ${error.message}`, true); renderAll(); });
+    });
+    $("#taskList").addEventListener("click", event => {
+      const button = event.target.closest("[data-delete-task]");
+      if (button) deleteTask(button.dataset.deleteTask).then(() => notify("Task deleted.")).catch(error => { console.error("Could not delete task.", error); notify(`Could not delete task: ${error.message}`, true); });
+    });
+    $("#upcomingList").addEventListener("change", event => {
+      if (event.target.matches("[data-complete]")) toggleTask(event.target.dataset.complete, event.target.checked).catch(error => { console.error("Could not update task.", error); notify(`Could not update task: ${error.message}`, true); renderAll(); });
+    });
+    $("#roadmapForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const button = $("#generateRoadmap");
+      button.disabled = true;
+      button.textContent = "Generating…";
+      try {
+        const topic = $("#roadmapTopic").value.trim();
+        if (!state.client || !state.user) {
+          await saveRoadmap(sampleRoadmap(topic));
+          notify("Supabase AI is not connected. A sample roadmap was created locally.");
+          return;
+        }
+        if (!state.cloudReady) throw new Error("Your Supabase account is signed in, but cloud data is not ready. Check the database setup and sign in again.");
+        const text = await callAssistant("roadmap", topic);
+        const data = parseJsonResponse(text, "roadmap");
+        if (!Array.isArray(data.phases) || !data.phases.length || data.phases.some(phase =>
+          !phase || typeof phase.title !== "string" || !Array.isArray(phase.tasks) ||
+          phase.tasks.some(task => typeof task !== "string" && (!task || typeof task.title !== "string"))
+        )) throw new Error("The AI returned an invalid roadmap. Each phase must have a title and task list.");
+        data.topic ||= topic;
+        data.title ||= `${topic} roadmap`;
+        await saveRoadmap(data);
+        notify(state.user ? "Roadmap generated and synced." : "Roadmap generated.");
+      } catch (error) { console.error("Could not generate roadmap.", error); notify(error.message, true); }
+      finally { button.disabled = false; button.textContent = "Generate with AI"; }
+    });
+    $("#sampleRoadmap").addEventListener("click", async () => {
+      try {
+        const topic = $("#roadmapTopic").value.trim() || "Full-stack web development";
+        await saveRoadmap(sampleRoadmap(topic));
+        $("#roadmapTopic").value = topic;
+        notify(state.user ? "Sample roadmap saved and synced." : "Sample roadmap loaded locally.");
+      } catch (error) { console.error("Could not save sample roadmap.", error); notify(`Could not save roadmap: ${error.message}`, true); }
+    });
+    $("#roadmapCanvas").addEventListener("click", event => {
+      const card = event.target.closest("[data-phase]");
+      if (card) showPhase(Number(card.dataset.phase));
+    });
+    $("#roadmapCanvas").addEventListener("keydown", event => {
+      if ((event.key === "Enter" || event.key === " ") && event.target.matches("[data-phase]")) { event.preventDefault(); showPhase(Number(event.target.dataset.phase)); }
+    });
+    $("#roadmapDetail").addEventListener("click", async event => {
+      const button = event.target.closest("[data-import-phase], [data-add-phase-task]");
+      if (!button) return;
+      button.disabled = true;
+      try {
+        if (button.hasAttribute("data-add-phase-task")) {
+          const title = button.dataset.addPhaseTask;
+          await addTask(title, "Study", button.dataset.priority || "medium", button.dataset.dueDate || "");
+          notify(`Added "${title}"${state.user ? " to your synced tasks." : " to your local tasks."}`);
+          return;
+        }
+        const phase = state.activeRoadmap?.data?.phases?.[Number(button.dataset.importPhase)];
+        if (!phase) return;
+        const tasks = (phase.tasks || []).map(normalizeRoadmapTask).filter(task => !state.tasks.some(existing => existing.title === task.title));
+        for (const task of tasks) await addTask(task.title, "Study", task.priority, task.dueDate);
+        notify(tasks.length ? `${tasks.length} phase tasks added${state.user ? " and synced" : " locally"}.` : "All phase tasks are already on your task list.");
+      } catch (error) { console.error("Could not import phase tasks.", error); notify(`Could not import all phase tasks: ${error.message}`, true); }
+      finally { button.disabled = false; }
+    });
+    $("#flowTab").addEventListener("click", () => { state.roadmapMode = "flow"; $("#flowTab").classList.add("active"); $("#stepTab").classList.remove("active"); renderRoadmap(); });
+    $("#stepTab").addEventListener("click", () => { state.roadmapMode = "step"; $("#stepTab").classList.add("active"); $("#flowTab").classList.remove("active"); renderRoadmap(); });
+    $("#savedRoadmaps").addEventListener("change", event => {
+      state.activeRoadmap = state.roadmaps.find(roadmap => roadmap.id === event.target.value) || null;
+      state.selectedPhase = null;
+      renderRoadmap();
+    });
+    $("#flashcardForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      try {
+        await addFlashcard($("#cardQuestion").value.trim(), $("#cardAnswer").value.trim());
+        $("#flashcardForm").reset();
+        notify(state.user ? "Flashcard saved and synced." : "Flashcard saved in this browser only.");
+      } catch (error) { console.error("Could not add flashcard.", error); notify(`Could not add flashcard: ${error.message}`, true); }
+    });
+    $("#flashcard").addEventListener("click", () => { if (state.flashcards.length) { state.showingAnswer = !state.showingAnswer; renderFlashcard(); } });
+    $("#flashcard").addEventListener("keydown", event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); $("#flashcard").click(); } });
+    $("#previousCard").addEventListener("click", () => { if (state.flashcards.length) { state.cardIndex = (state.cardIndex - 1 + state.flashcards.length) % state.flashcards.length; state.showingAnswer = false; renderFlashcard(); } });
+    $("#nextCard").addEventListener("click", () => { if (state.flashcards.length) { state.cardIndex = (state.cardIndex + 1) % state.flashcards.length; state.showingAnswer = false; renderFlashcard(); } });
+    $("#deleteCard").addEventListener("click", () => deleteFlashcard().then(() => notify("Flashcard deleted.")).catch(error => { console.error("Could not delete flashcard.", error); notify(`Could not delete flashcard: ${error.message}`, true); }));
+    $("#aiCardsForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const button = $("#generateCards");
+      button.disabled = true;
+      try {
+        const topic = $("#flashcardTopic").value.trim();
+        if (!state.client || !state.user) {
+          for (const card of offlineFlashcards(topic)) await addFlashcard(card.question, card.answer);
+          notify("Supabase AI is not connected. Eight sample flashcards were saved locally.");
+          return;
+        }
+        if (!state.cloudReady) throw new Error("Your Supabase account is signed in, but cloud data is not ready. Check the database setup and sign in again.");
+        const text = await callAssistant("flashcards", topic);
+        const cards = parseJsonResponse(text, "flashcard set");
+        if (!Array.isArray(cards) || !cards.length || cards.some(card => typeof card.question !== "string" || typeof card.answer !== "string")) throw new Error("The AI returned an invalid flashcard set.");
+        for (const card of cards.slice(0, 20)) await addFlashcard(card.question, card.answer);
+        notify(`${Math.min(cards.length, 20)} AI flashcards added.`);
+      } catch (error) { console.error("Could not generate flashcards.", error); notify(error.message, true); }
+      finally { button.disabled = false; }
+    });
+    $("#chatToggle").addEventListener("click", () => $("#chatPanel").classList.toggle("open"));
+    $("#closeChat").addEventListener("click", () => $("#chatPanel").classList.remove("open"));
+    $("#resetChat").addEventListener("click", () => {
+      $("#chatMessages").replaceChildren();
+      addChatMessage("Hi! I can help you plan a study session, break down a goal, or explain the workspace. Ask me anything.", "bot");
+    });
+    document.querySelectorAll("[data-prompt]").forEach(button => button.addEventListener("click", () => { $("#chatInput").value = button.dataset.prompt; $("#chatInput").focus(); }));
+    function addChatMessage(text, role) {
+      const message = document.createElement("div");
+      message.className = `message ${role}`;
+      if (role === "bot") message.innerHTML = formatBotText(text);
+      else message.textContent = text;
+      $("#chatMessages").appendChild(message);
+      $("#chatMessages").scrollTop = $("#chatMessages").scrollHeight;
+      return message;
+    }
+    $("#chatForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const input = $("#chatInput");
+      const formButton = event.submitter;
+      const prompt = input.value.trim();
+      if (!prompt) return;
+      input.value = "";
+      addChatMessage(prompt, "user");
+      formButton.disabled = true;
+      const typing = addChatMessage("TaskCraft is thinking", "bot");
+      typing.classList.add("typing");
+      const context = { openTasks: state.tasks.filter(task => !task.completed).length, completedTasks: state.tasks.filter(task => task.completed).length, flashcards: state.flashcards.length, roadmap: state.activeRoadmap?.title || null };
+      try {
+        const answer = !state.client || !state.user || !state.cloudReady
+          ? `Offline helper · sample guidance\n\n${offlineAssistant(prompt, context)}`
+          : await callAssistant("chat", prompt, context);
+        typing.remove();
+        addChatMessage(answer, "bot");
+      } catch (error) {
+        console.error("Assistant request failed.", error);
+        const answer = isNetworkFailure(error)
+          ? `Offline helper · AI connection unavailable. This guidance is based only on local features.\n\n${offlineAssistant(prompt, context)}`
+          : error.message;
+        addChatMessage(answer, "bot");
+      }
+      finally { typing.remove(); }
+      formButton.disabled = false;
+    });
+    async function authAction(action) {
+      if (!state.client) { notify("Configure the Supabase URL and publishable key first.", true); return; }
+      const email = $("#authEmail").value.trim();
+      const password = $("#authPassword").value;
+      if (!email || !password) { $("#authStatus").textContent = "Enter an email and password."; return; }
+      $("#authStatus").textContent = action === "signup" ? "Creating account…" : "Signing in…";
+      const result = action === "signup" ? await state.client.auth.signUp({ email, password }) : await state.client.auth.signInWithPassword({ email, password });
+      if (result.error) { $("#authStatus").textContent = result.error.message; notify(result.error.message, true); return; }
+      if (action === "signup" && !result.data.session) {
+        $("#authStatus").textContent = "Account created. Check your email to confirm, then sign in.";
+        notify("Check your email to confirm your new account.");
+        return;
+      }
+      if (result.data.user && !result.data.session) {
+        $("#authStatus").textContent = "Check your email to complete sign-in.";
+        return;
+      }
+      state.user = result.data.user;
+      state.cloudReady = false;
+      state.tasks = [];
+      state.flashcards = [];
+      state.roadmaps = [];
+      state.activeRoadmap = null;
+      renderAll();
+      try {
+        await loadCloudData();
+        setCloudStatus();
+        notify("Signed in. Your cloud workspace is loaded.");
+      } catch (error) { console.error("Could not load Supabase workspace.", error); setCloudStatus(); notify(`Signed in, but workspace data could not be loaded: ${error.message}`, true); }
+    }
+    $("#signInButton").addEventListener("click", () => authAction("signin").catch(error => { console.error("Sign-in failed.", error); notify(`Sign-in failed: ${error.message}`, true); }));
+    $("#signUpButton").addEventListener("click", () => authAction("signup").catch(error => { console.error("Sign-up failed.", error); notify(`Sign-up failed: ${error.message}`, true); }));
+    $("#signOutButton").addEventListener("click", async () => {
+      const { error } = await state.client.auth.signOut();
+      if (error) { notify(`Could not sign out: ${error.message}`, true); return; }
+      state.user = null; state.cloudReady = false; state.activeRoadmap = null; loadLocal(); renderAll(); setCloudStatus();
+      notify("Signed out. Showing this browser's local workspace.");
+    });
+
+    if (isConfigured && window.supabase?.createClient) {
+      state.client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const { data, error } = await state.client.auth.getSession();
+      if (error) notify(`Could not check Supabase session: ${error.message}`, true);
+      state.user = data?.session?.user || null;
+      state.cloudReady = false;
+      if (state.user) {
+        try { await loadCloudData(); }
+        catch (loadError) { console.error("Could not load Supabase workspace.", loadError); setCloudStatus(); notify(`Could not load workspace: ${loadError.message}. Check that the database schema is installed.`, true); }
+      } else loadLocal();
+      state.client.auth.onAuthStateChange(event => {
+        if (event === "SIGNED_OUT") {
+          state.user = null; state.cloudReady = false; state.activeRoadmap = null; loadLocal(); renderAll(); setCloudStatus();
+        }
+      });
+    } else {
+      loadLocal();
+      if (window.supabase?.createClient) $("#authStatus").textContent = "Add your Supabase URL and publishable key in the HTML to enable sync.";
+      else $("#authStatus").textContent = "Supabase SDK did not load. Check your internet connection.";
+    }
+    setCloudStatus();
+    renderAll();
+  </script>
+</body>
+</html>
