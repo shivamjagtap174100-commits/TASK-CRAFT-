@@ -26,6 +26,9 @@
     .flashcard.flipped .flash-inner{transform:rotateY(180deg)}
     .flash-front,.flash-back{backface-visibility:hidden}
     .flash-back{position:absolute;inset:0;display:grid;align-content:center;transform:rotateY(180deg)}
+    .password-field{display:flex;align-items:stretch;gap:6px;margin:5px 0}
+    .password-field .field{flex:1;width:auto!important;margin:0}
+    .password-toggle{padding:0 10px;border:1px solid var(--line);border-radius:9px;background:#18243a;color:#d9e2f6;font-size:12px}
     @keyframes pulse{50%{opacity:.35}}
     @media(max-width:650px){.sidebar{background:var(--bg)}.mobile-account-toggle{display:block}.auth-box{display:none}.auth-box.open{display:block;width:100%;margin:0}}
     @media(max-width:650px){.nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;gap:6px}.nav button{min-width:0;white-space:normal;text-align:center;padding:8px 5px;font-size:11px}}
@@ -52,7 +55,10 @@
         <label class="sr-only" for="authEmail">Email</label>
         <input class="field" id="authEmail" type="email" placeholder="Email" autocomplete="email" style="width:100%">
         <label class="sr-only" for="authPassword">Password</label>
-        <input class="field" id="authPassword" type="password" placeholder="Password" autocomplete="current-password" style="width:100%">
+        <div class="password-field">
+          <input class="field" id="authPassword" type="password" placeholder="Password" autocomplete="current-password">
+          <button class="password-toggle" id="passwordToggle" type="button" aria-controls="authPassword" aria-pressed="false">Show</button>
+        </div>
         <div class="auth-actions" id="authActions">
           <button class="secondary" id="signInButton">Sign in</button>
           <button class="primary" id="signUpButton">Sign up</button>
@@ -196,7 +202,9 @@
       $("#chatStatus").textContent = state.cloudReady ? "Supabase account connected" : state.user ? "Signed in · cloud data unavailable" : "Offline helper · browser only";
       $("#authActions").hidden = Boolean(state.user) || !state.client;
       $("#signOutButton").hidden = !state.user;
-      if (!state.client) $("#authStatus").textContent = "Add your Supabase URL and publishable key in the HTML to enable sync.";
+      if (!state.client) $("#authStatus").textContent = isConfigured
+        ? "Supabase could not connect. Check your internet connection and project URL."
+        : "Sign-in is unavailable until your Supabase URL and publishable key are configured.";
       else if (!state.user) $("#authStatus").textContent = "Not signed in. Data stays in this browser.";
       else if (state.cloudReady) $("#authStatus").textContent = "Your data is stored in your Supabase account.";
       else $("#authStatus").textContent = "Signed in, but workspace data has not synced yet.";
@@ -707,7 +715,12 @@
       formButton.disabled = false;
     });
     async function authAction(action) {
-      if (!state.client) { notify("Configure the Supabase URL and publishable key first.", true); return; }
+      if (!state.client) {
+        const message = "Sign-in is unavailable until the Supabase project URL and publishable key are configured.";
+        $("#authStatus").textContent = message;
+        notify(message, true);
+        return;
+      }
       const email = $("#authEmail").value.trim();
       const password = $("#authPassword").value;
       if (!email || !password) { $("#authStatus").textContent = "Enter an email and password."; return; }
@@ -736,6 +749,14 @@
         notify("Signed in. Your cloud workspace is loaded.");
       } catch (error) { console.error("Could not load Supabase workspace.", error); setCloudStatus(); notify(`Signed in, but workspace data could not be loaded: ${error.message}`, true); }
     }
+    $("#passwordToggle").addEventListener("click", () => {
+      const password = $("#authPassword");
+      const visible = password.type === "password";
+      password.type = visible ? "text" : "password";
+      $("#passwordToggle").textContent = visible ? "Hide" : "Show";
+      $("#passwordToggle").setAttribute("aria-pressed", String(visible));
+      $("#passwordToggle").setAttribute("aria-label", `${visible ? "Hide" : "Show"} password`);
+    });
     $("#signInButton").addEventListener("click", () => authAction("signin").catch(error => { console.error("Sign-in failed.", error); notify(`Sign-in failed: ${error.message}`, true); }));
     $("#signUpButton").addEventListener("click", () => authAction("signup").catch(error => { console.error("Sign-up failed.", error); notify(`Sign-up failed: ${error.message}`, true); }));
     $("#signOutButton").addEventListener("click", async () => {
@@ -762,8 +783,8 @@
       });
     } else {
       loadLocal();
-      if (window.supabase?.createClient) $("#authStatus").textContent = "Add your Supabase URL and publishable key in the HTML to enable sync.";
-      else $("#authStatus").textContent = "Supabase SDK did not load. Check your internet connection.";
+      if (!isConfigured) $("#authStatus").textContent = "Sign-in is unavailable until your Supabase URL and publishable key are configured.";
+      else $("#authStatus").textContent = "Supabase could not connect. Check your internet connection and project URL.";
     }
     setCloudStatus();
     renderAll();
